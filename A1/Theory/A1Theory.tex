@@ -152,11 +152,30 @@
 	We must show $\sigma(z) = S(x_2)$ and $1 - \sigma(z) = S(x_1)$ for z being a scalar function of x.\\
 
 	Let $z = x_2 - x_1$\\
-	$$\sigma(z) = \frac{1}{1 + exp(-z)} = \frac{1}{1 + exp(x_1)exp(-x_2)}$$ $$ = \frac{exp(x_2)}{exp(x_2)( 1 + exp(x_1)exp(-x_2)} = \frac{exp(x_2)}{exp(x_2) + exp(x_1)} $$ $$= S(x_2)$$\\ \\
+	$$\sigma(z) = \frac{1}{1 + exp(-z)} = \frac{1}{1 + exp(x_1)exp(-x_2)}$$ $$ = \frac{exp(x_2)}{exp(x_2)( 1 + exp(x_1)exp(-x_2)} = \frac{exp(x_2)}{exp(x_2) + exp(x_1)} $$ \\		$$= S(x_2)$$\\ \\
 
 	$$1 - \sigma(z) = 1 - \frac{1}{1 + exp(-z)} = 1 - \frac{1}{1 + exp(x_1)exp(-x_2)}$$\\
-	$$ = $$
-	
+	$$ = 1 - \frac{exp(x_2)}{exp(x_2)(1 + exp(x1)exp(-x_2))}  = 1 - \frac{exp(x_2)}{exp(x_2) + exp(x_1)}$$\\
+	$$ = \frac{exp(x_1) + exp(x_2)}{exp(x_1) + exp(x_2)} - \frac{exp(x_2)}{exp(x_1)exp(x_2)} = \frac{exp(x_1)}{exp(x_1)exp(x_2)}$$\\
+	$$ = S(x_1)$$
+	$\blacksquare$
+
+    \item 
+	Let $y_i = x_i - x_1$ . We then propose a S(x) with K - 1 parameters to be of this form
+	\[ 
+	 f(y2,y3,...,y_k)_i = 
+	\begin{cases} 
+      \frac{exp(y_i)}{(\sum^k_{j=2} exp(y_k)) + 1} & i  \neq 1 \\
+      1 - \sum^k_{j=2} f(y_j) & i=1
+   \end{cases}
+\]
+
+We then show that   $f(y2,y3,...,y_k)_i = S(x1,x2, ... , x_k)_i$ for all i\\
+
+For $ i \neq j$ We have $$ f(y_2,y3_,...,y_k)_i = \frac{exp(x_i - x_1)}{(\sum^k_{j=2} exp(x_j - x_1)) + 1}$$ $$ = \frac{exp(x_i)}{(\sum^k_{j=2} exp(x_j)) + exp(x_1)}$$ $$= S(x_1, ..., x_k)_i$$\\ \\
+
+For $ i = j$ $$ S(x_1, ..., x_k)_i = 1 - \sum^k_{j=2} S(x1, ..., x_k)_j = 1 - \sum^k_{j=2} f(y_2, ..., y_k)_j $$
+	$\blacksquare$
     \vspace{0.5cm}
 \end{enumerate}
 
@@ -167,10 +186,116 @@
   \begin{enumerate}
 
   \item 
+	If we show a linear relationship between the simgmoid and tanh, we can transform the sigmoid form into the tanh form, given the correct parameters.
+
+	We show the sigmoid/tanh relation to be $tanh(x) = 2\sigma(2x) - 1$ $$ \sigma(x) = \frac{1}{1 + e^{-x}}$$ $$ 2 \sigma(2x) - 1 = \frac{2}{1 + e^{-2x}} -1$$ $$ = \frac{2e^{x}}{e^x + e^{-x}} - \frac{e^x + e^{-x}}{e^x + e^{-x}} = \frac{e^x - e^{-x}}{e^x + e^{-x}}$$ $$ = tanh(x)$$
+
+
+	Then we transform the sigmoid activated equation. Let $\Theta' = (2\omega^{(1)}, 2\omega^{(2)}), \omega^{(1)}_{j0} = 0,  \omega^{(2)}_{j0} = \omega^{(2)}_{k0} + 1$ 		           Reparametrizing with $\Theta'$ and biases  $$ y(x,\Theta,\sigma)_k =\sum^M_{j=1} 2\omega^{(2)}_{kj} \sigma (\sum^D_{i=1} 2\omega^{(2)}_{ji}x_i) +  \omega^{(2)}				_{j0} - 1$$ $$ =2\sum^M_{j=1} \omega^{(2)}_{kj} \sigma (2\sum^D_{i=1} \omega^{(2)}_{ji}x_i) +  \omega^{(2)}_{j0} - 1$$ Using the above tanh/sigmoid relation
+	 $$ =\sum^M_{j=1} \omega^{(2)}_{kj} tanh (\sum^D_{i=1} \omega^{(2)}_{ji}x_i) +  \omega^{(2)}_{j0} $$ $$ = y(x,\Theta',tanh)_k$$
+	$$\blacksquare$$
+	Therefore, the relation $\Theta' = 2\Theta$, with $\sigma^{'1}_0 = 0$ and $\sigma^{'2}_0 =  \sigma^2_0 + 1$ gives an equivalent 2 layers NN with sigmoid and tanh activations.
+	
 
     \vspace{0.5cm}
 
   \end{enumerate}
 
+\vspace{1cm}
+ Question 5\\
 
+  \begin{enumerate}
+	\item 
+	$$y(x;W^{(1)}, W^{(2)}, b^{(1)}, b^{(2)}, \phi) = \sum W^{(2)}_j \phi( \sum W^{(1)}_i x_i + b^{(1)}) + b^{(2)}$$
+	\item
+	$$ = \sum W^{(2)}_j \phi( W^{(1)}_i \sum  x_i + b^{(1)}) + b^{(2)}$$
+	  \[
+=
+\begin{bmatrix}
+    \phi( W^{(1)}_i \sum  x_i + b^{(1)}) & \dots  &  \phi( W^{(1)}_i \sum  x_i + b^{(1)})  & 1\\
+    \vdots  \\
+     \phi( W^{(1)}_N \sum  x_i + b^{(1)})   & \dots & \phi( W^{(1)}_N \sum  x_i + b^{(1)}) & 1  \\
+\end{bmatrix}
+\begin{bmatrix}
+    W^{(2)}_{1} & \\
+    W^{(2)}_{2} & \\
+    \vdots  \\
+     W^{(2)}_{N-1} & \\
+     b^{(2)} & \\
+\end{bmatrix}
+=
+\begin{bmatrix}
+   f(x^{(1)}), & f(x^{(2)}) ,  & \dots &,  f(x^{(N)}) \\
+\end{bmatrix}
+\]
+\item
+	TODO
+
+\item 
+	TODO
+
+
+\end{enumerate}
+\vspace{1cm}
+ Question 6\\
+
+	Kernel flipped = [2,0,1]\\ \\
+	Full Convolution:  [1,2,3,4] * [2,0,1] = [(2x0 + 0 +1x1), (2x0 + 0 +1x2), (2x1 + 0 +1x3),(2x2 + 0 +1x4),(2x3 + 0 +1x0), (2x4 + 0 +1x0)] = [1,2,5,8,6,8] \\ \\
+	Same Convolution:  [1,2,3,4] * [2,0,1] = [(2x0 + 0 +1x2), (2x1 + 0 +1x3),(2x2 + 0 +1x4),(2x3 + 0 +1x0)] = [2,5,8,6] \\ \\
+	Valid Convolution:  [1,2,3,4] * [2,0,1] = [(2x1 + 0 +1x3),(2x2 + 0 +1x4)] = [5,8] \\ \\
+
+\vspace{1cm}
+ Question 7\\
+
+    Using formula $ o = (\frac{i + 2p - k}{s}) +1$ from class notes, we calculate dimension at each layer.\\ \\
+
+    First layer: i = 256, k = 8, s=2, p=0 and we have 3 channels. $o =(\frac{256 +2(0) - 8}{2}) + 1 =  125$ Since there is 64 kernels, output dimension is 125x125x64.\\ \\
+    Second layer: Maxpooling preserves number of channels, but divide square area. $125/5 = 25$, output dimension is 25x25x64\\
+   Last layer: : i = 25, k = 4, s=1, p=1 and we have 64 channels. $o =(\frac{25 +2(1) - 4}{1}) + 1 =  24$ Since there is 128 kernels, output dimension is  24x 24x128.\\ \\
+  \begin{enumerate}
+	\item
+	Output of the last layer is 24x24x128 = 73 728 dimensions.\\
+
+	\item
+	Parameters of the function is given by O x O x number of inputs channel. We have 24 x 24 x 64 = $36 864$ parameters.
+\end{enumerate}
+
+\vspace{1cm}
+ Question 8\\
+	
+  \begin{enumerate}
+	\item
+	  \begin{enumerate}
+		\item
+		k = 8, then $ 32 = (\frac{64 + 2(p) - 8}{s}) + 1$. p = 3 , s = 2 satisfy the equation.\\ \\
+		Correct configuration is: k=8, s=2, p=3,d=1.
+		\item
+		d = 7, s = 2. Then $ 32 = (\frac{64 + 2(p) - \hat{k}}{s}) + 1$. Let p = 3, then $\hat{k}$ need to be 8. $\hat{k}= k + (k-1)(7-1)$. k = 2 statisfies the equation.\\ \\
+		Correct configuration is: k=2, s=2, p=3,d=7.
+	\end{enumerate}
+
+	\item
+	  \begin{enumerate}
+	\item
+	k = 4 and s = 2
+	\item
+	4 x 4 x 64
+	 \end{enumerate}
+	\item
+	 \begin{enumerate}
+	\item
+	p = 0, d=1 . 4 = $(\frac{8 + 2(0) - k}{s}) + 1$. s = 2 , k = 2 satisfy the equation. \\ \\
+	Correct configuration is: k=2, s=2, p=0,d=1.
+	
+	\item
+	d = 2, p = 2. Then $ 4 = (\frac{8 + 2(2) - \hat{k}}{s}) + 1$. Let s = 1, then $\hat{k}$ need to be 9. $\hat{k}= k + (k-1)(2-1)$. k = 5 statisfies the equation.\\ \\
+	Correct configuration is: k=5, s=1, p=2,d=2.
+
+	\item
+	d = 1, p = 1. Then $ 4 = (\frac{8 + 2(1) - k}{s}) + 1$ .s = 3 , k = 3 satisfy the equation statisfy the equation.\\ \\
+	Correct configuration is: k=3, s=3, p=1,d=1.
+
+
+	 \end{enumerate}
+\end{enumerate}
 \end{document}
