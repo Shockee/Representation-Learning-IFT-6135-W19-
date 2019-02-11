@@ -26,55 +26,67 @@ class NN (object):
         self.num_class = num_class
         self.num_hidden = len(hidden_dims)
 
-    def initialize_weights(self, input_size, num_class, init_type='normal_dist'):
+    def initialize_weights(self, input_size, num_class, init_type='glorot'):
+        #Zero initialization
         if init_type == 'zeros':
-
-            # W is a vector that holds w matrices for each hidden layer and for the output layer
             w1 = np.zeros((input_size, self.hidden_dims[0]))
             w2 = np.zeros((self.hidden_dims[0], self.hidden_dims[1]))
-            o = np.zeros((self.hidden_dims[1], num_class))
+            wo = np.zeros((self.hidden_dims[1], num_class))
             b1 = np.zeros((1,self.hidden_dims[0]))
             b2 = np.zeros((1,self.hidden_dims[1]))
-            b3 = np.zeros((1,num_class))
+            bo = np.zeros((1,num_class))
 
-
+        #Normal distribution initialization(with biases 0)
         if init_type == 'normal_dist':
             w1 = np.random.normal(0, 0.1, (input_size, self.hidden_dims[0]))
             w2 = np.random.normal(0, 0.1, (self.hidden_dims[0], self.hidden_dims[1]))
-            o = np.random.normal(0, 0.1, (self.hidden_dims[1], num_class))
+            wo = np.random.normal(0, 0.1, (self.hidden_dims[1], num_class))
             b1 = np.zeros((1,self.hidden_dims[0]))
             b2 = np.zeros((1,self.hidden_dims[1]))
-            b3 = np.zeros((1,num_class))
+            bo = np.zeros((1,num_class))
 
-        self.W = [w1, w2, o]
-        self.b = [b1,b2,b3]
+        #Glorot initialization
+        if init_type == 'glorot':
+            d1 = np.sqrt(6./(input_size + self.hidden_dims[0]))
+            w1 = np.random.uniform(-d1, d1, (input_size, self.hidden_dims[0]))
+
+            d2 = np.sqrt(6./(self.hidden_dims[0] + self.hidden_dims[1]))
+            w2 = np.random.uniform(-d2, d2, (self.hidden_dims[0], self.hidden_dims[1]))
+
+            do = np.sqrt(6./(self.hidden_dims[1] + num_class))
+            wo = np.random.uniform(-do, do, (self.hidden_dims[1], num_class))
+
+            b1 = np.zeros((1,self.hidden_dims[0]))
+            b2 = np.zeros((1,self.hidden_dims[1]))
+            bo = np.zeros((1,num_class))
+
+
+        self.W = [w1, w2, wo]
+        self.b = [b1,b2,bo]
 
     def forward(self, input):
-        try:
-            #First logit
-            h1 = input.dot(self.W[0]) + self.b[0]
+        #First logit
+        h1 = input.dot(self.W[0]) + self.b[0]
 
-            #First non-linearity
-            a1 = self.activation(h1)
+        #First non-linearity
+        a1 = self.activation(h1)
 
-            #Second Logit
-            h2 = np.dot(a1, self.W[1]) + self.b[1]
+        #Second Logit
+        h2 = np.dot(a1, self.W[1]) + self.b[1]
 
-            #Second linearity
-            a2 = self.activation(h2)
+        #Second linearity
+        a2 = self.activation(h2)
 
-            #Output logit
-            o = np.dot(a2, self.W[2]) + self.b[2]
+        #Output logit
+        o = np.dot(a2, self.W[2]) + self.b[2]
 
-            #Saving activations for backprop
-            self.a1 = a1
-            self.a2 = a2
-            self.o = o
+        #Saving activations for backprop
+        self.a1 = a1
+        self.a2 = a2
+        self.o = o
 
-            #Return the softmax
-            return self.softmax(o)
-        except:
-            t =2
+        #Return the softmax
+        return self.softmax(o)
 
 
     def activation(self, input, type='relu'):
@@ -99,12 +111,6 @@ class NN (object):
     def backward(self, input, correct_label, prediction, mini_batch_size):
         #Calculate the loss
         loss = self.loss(prediction,correct_label)
-        if(len(self.l_vector) == 100):
-            print(np.average(self.l_vector))
-            avg = np.average(self.l_vector)
-            self.plt_vector.append(avg)
-            self.l_vector = []
-
         self.l_vector.append(loss)
 
         #Derivative of the output layer ( np.multiply(y, np.multiply(1-y, targets-y)))
@@ -139,7 +145,9 @@ class NN (object):
         self.W[0] = self.W[0] - self.learning_rate * grads[0]
         self.b[0] = self.b[0] - self.learning_rate * gbias[0]
 
-    def train(self, epochs):
+    def train(self, epochs, weight_init):
+
+        loss_history = []
 
         #Manual setting of hyperparameters
         self.batch_size = 32
@@ -149,7 +157,7 @@ class NN (object):
         validation = np.load(self.data_path)[1]
 
         #Weight initialization
-        self.initialize_weights(self.input_size, self.num_class)
+        self.initialize_weights(self.input_size, self.num_class, init_type=weight_init)
 
         #Training
         for epoch in range(0,epochs):
@@ -176,12 +184,15 @@ class NN (object):
 
                 #Weight update
                 self.update(grads, gbias)
+            loss_history.append(np.average(self.l_vector))
+            print(np.average(self.l_vector))
+            self.l_vector = []
 
         #self.test(data)
-        self.test(validation)
-        plt.plot(self.plt_vector)
-        plt.show()
-        return None
+        #self.test(validation)
+        #plt.plot(loss_history)
+        #plt.show()
+        return loss_history
 
     def test(self, validation_set):
         results = np.sum(np.equal(np.argmax(self.forward(validation_set[0]), axis=1),validation_set[1]).astype(int))
