@@ -9,7 +9,8 @@ def main():
 
     while choice != "q":
         choice = input("Type 1 for weights initialization comparaison, 2 for the parameters search,"
-                       "3 for the finite gradient and q to quit.")
+                       "3 for the finite gradient, 4 for the test results on the best "
+                       "hyper-parameters and q to quit.")
 
         if choice == str(1):
             compare_weight_initialization_methods()
@@ -17,6 +18,8 @@ def main():
             random_search(10)
         if choice == str(3):
             plot_finite_gradient()
+        if choice == str(4):
+            test_best_model()
 
     return None
 
@@ -75,6 +78,15 @@ def plot_finite_gradient():
                  1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000])
     mlp.plot_finite_gradient(N)
 
+
+def test_best_model(data_path='mnist.pkl.npy'):
+    mlp = NN(784, 10, data_path='mnist.pkl.npy', hidden_dims=(544, 570), activation_type='relu',
+             learning_rate=0.01213, batch_size=64)
+    mlp.train(10,'glorot')
+
+    data = np.load(data_path)[2]
+
+    mlp.test(data)
 
 if __name__ == '__main__':
     main()

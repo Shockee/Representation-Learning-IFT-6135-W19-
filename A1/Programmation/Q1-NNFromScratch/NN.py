@@ -213,10 +213,26 @@ class NN (object):
         # Returns average loss for each epoch
         return loss_history
 
-    def test(self, validation_set):
-        results = np.sum(np.equal(np.argmax(self.forward(validation_set[0]), axis=1), validation_set[1]).astype(int))
+    def test(self, test_set):
+        results = 0
+        for i in range(0, len(test_set[0]), self.batch_size):
+            batch_end_index = i + self.batch_size
 
-        print("Valid results :" + str((results/len(validation_set[0]))*100) + "%")
+            # Case where the batch size would cause to overflow the data
+            if batch_end_index > len(test_set[0]):
+                batch_end_index = len(test_set[0])
+                current_batch_size = len(test_set[0]) - i
+
+            # Initialize current training batch
+            x = test_set[0][range(i, batch_end_index)]
+
+            # Foward pass
+            prediction = self.forward(x)
+
+            # Summing correct results
+            results += np.sum(np.equal(np.argmax(prediction, axis=1), test_set[1][i:batch_end_index]).astype(int))
+
+        print("Test results :" + str((results / len(test_set[0])) * 100) + "%")
 
 
     def plot_finite_gradient(self, N):
