@@ -5,8 +5,9 @@ import matplotlib.pyplot as plt
 
 def main():
 
-    compare_weight_initialization_methods()
-    # random_search(10)
+    #compare_weight_initialization_methods()
+    #random_search(10)
+    plot_finite_gradient()
     return None
 
 
@@ -22,7 +23,9 @@ def compare_weight_initialization_methods():
     plt.plot(loss_init[0], label='Zeros')
     plt.plot(loss_init[1], label='Dist. Normale')
     plt.plot(loss_init[2], label='Glorot')
-    plt.legend(loc='upper left')
+    plt.xlabel("epochs")
+    plt.ylabel("training error")
+    plt.legend(loc='upper right')
 
     plt.show()
 
@@ -35,9 +38,9 @@ def random_search(num_search):
         dim_l1 = random.randint(450, 650)
         dim_l2 = random.randint(450, 650)
         activation = activations[random.randint(0, 2)]
-        learning_rate = random.uniform(0.001, 0.05)
+        learning_rate = random.uniform(0.005, 0.02)
 
-        batch_random = random.randint(4, 8)
+        batch_random = random.randint(4, 6)
         mini_batch_size = 2**batch_random
 
         # Creation and training of the NN
@@ -48,6 +51,13 @@ def random_search(num_search):
               + str(learning_rate) + ", batch_size = " + str(mini_batch_size))
 
         mlp.train(10, 'glorot')
+
+def plot_finite_gradient():
+
+    mlp = NN(784, 10, data_path='mnist.pkl.npy', hidden_dims=(600, 600), activation_type='relu')
+    mlp.train(10, 'glorot')
+
+    mlp.plot_finite_gradient()
 
 
 if __name__ == '__main__':

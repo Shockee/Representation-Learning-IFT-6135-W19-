@@ -1,8 +1,10 @@
 import numpy as np
-
+import copy
+import matplotlib.pyplot as plt
 
 class NN (object):
-    def __init__(self, input_size, num_class, data_path, learning_rate=0.01, hidden_dims=(600, 600), batch_size=32,
+
+    def __init__(self, input_size, num_class, data_path, learning_rate=0.00001, hidden_dims=(600, 600), batch_size=32,
                  activation_type='relu'):
 
         # Network initialization parameters
@@ -43,9 +45,9 @@ class NN (object):
 
         # Normal distribution initialization(with biases 0)
         if init_type == 'normal_dist':
-            self.params['w'].append(np.random.normal(0, 0.1, (input_size, self.hidden_dims[0])))
-            self.params['w'].append(np.random.normal(0, 0.1, (self.hidden_dims[0], self.hidden_dims[1])))
-            self.params['w'].append(np.random.normal(0, 0.1, (self.hidden_dims[1], num_class)))
+            self.params['w'].append(np.clip(np.random.normal(0, 1, (input_size, self.hidden_dims[0])), -1, 1))
+            self.params['w'].append(np.clip(np.random.normal(0, 1, (self.hidden_dims[0], self.hidden_dims[1])), -1, 1))
+            self.params['w'].append(np.clip(np.random.normal(0, 1, (self.hidden_dims[1], num_class)), -1 , 1))
             self.params['b'].append(np.zeros((1, self.hidden_dims[0])))
             self.params['b'].append(np.zeros((1, self.hidden_dims[1])))
             self.params['b'].append(np.zeros((1, num_class)))
@@ -87,15 +89,14 @@ class NN (object):
         return self.softmax(o)
 
     def activation(self, x):
-
         if self.activation_type == 'relu':
-            return np.maximum(x, 0, x)
+            return np.nan_to_num(np.maximum(x, 0, x))
 
         if self.activation_type == 'sigmoid':
-            return 1 / (np.exp(-x) + 1)
+            return np.nan_to_num(1 / (np.exp(-x) + 1))
 
         if self.activation_type == 'tanh':
-            return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+            return np.nan_to_num((np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x)))
 
     def activation_derivative(self, x):
 
@@ -206,7 +207,7 @@ class NN (object):
 
         # Test on validation data
         self.test(validation)
-
+        self.cache = []
         # Returns average loss for each epoch
         return loss_history
 
@@ -215,3 +216,49 @@ class NN (object):
 
         print("Valid results :" + str((results/len(validation_set[0]))*100) + "%")
 
+
+    def plot_finite_gradient(self):
+        sample = np.load(self.data_path)[2]
+        x = sample[0][0]
+        x.shape = (1, len(x))
+        t = sample[1][0]
+
+        N = np.array([1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500,
+                              1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000])
+        epsilon = 1/N
+        last_layer_weights = self.params['w'][2]
+        finite_gradient = np.zeros((len(epsilon), self.num_class))
+
+        self.l_vector = []
+
+        for i in range(0, 10):
+            for j in range(0, len(epsilon)):
+
+                # Calculate L with -epsilon
+                min_loss = copy.deepcopy(last_layer_weights)
+                min_loss[:, i] -= epsilon[j]
+                self.params['w'][2] = min_loss
+
+                prediction = self.forward(x)
+                self.backward(x,t,prediction,1)
+
+                # Calculate L with +epsilon
+                max_loss = copy.deepcopy(last_layer_weights)
+                max_loss[:, i] += epsilon[j]
+                self.params['w'][2] = max_loss
+
+                prediction = self.forward(x)
+                self.backward(x, t, prediction, 1)
+
+                finite_gradient[j][i] = (self.l_vector[1] - self.l_vector[0])/(2*epsilon[j])
+
+                self.l_vector = []
+
+        prediction = self.forward(x)
+        grad, gbias = self.backward(x, t, prediction, 1)
+        max_diff = np.max(np.abs((np.sum(grad[2],axis=0) - finite_gradient)), axis=1)
+
+        plt.plot(np.log(N), max_diff)
+        plt.xlabel("Log(N)")
+        plt.ylabel("Maximum difference between true and finite gradient")
+        plt.show()
