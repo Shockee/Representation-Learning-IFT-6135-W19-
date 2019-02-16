@@ -45,12 +45,12 @@ class NN (object):
 
         # Normal distribution initialization(with biases 0)
         if init_type == 'normal_dist':
-            self.params['w'].append(np.clip(np.random.normal(0, 1, (input_size, self.hidden_dims[0])), -1, 1))
-            self.params['w'].append(np.clip(np.random.normal(0, 1, (self.hidden_dims[0], self.hidden_dims[1])), -1, 1))
-            self.params['w'].append(np.clip(np.random.normal(0, 1, (self.hidden_dims[1], num_class)), -1 , 1))
-            self.params['b'].append(np.zeros((1, self.hidden_dims[0])))
-            self.params['b'].append(np.zeros((1, self.hidden_dims[1])))
-            self.params['b'].append(np.zeros((1, num_class)))
+            self.params['w'].append(np.random.normal(0, 1, (input_size, self.hidden_dims[0])))
+            self.params['w'].append(np.random.normal(0, 1, (self.hidden_dims[0], self.hidden_dims[1])))
+            self.params['w'].append(np.random.normal(0, 1, (self.hidden_dims[1], num_class)))
+            self.params['b'].append(np.random.normal(0, 1,(1, self.hidden_dims[0])))
+            self.params['b'].append(np.random.normal(0,1,(1, self.hidden_dims[1])))
+            self.params['b'].append(np.random.normal(0,1,(1, num_class)))
 
         # Glorot initialization
         if init_type == 'glorot':
@@ -111,11 +111,13 @@ class NN (object):
 
     def loss(self, pred_vector, correct_label, batch_size, loss_type='cross-entropy'):
         if loss_type == 'cross-entropy':
+            # Prevents infinite loss if the correct class has 0 probability.
+            pred_vector = np.clip(pred_vector, 0.00001,0.99999)
             return np.average(-np.log(pred_vector[range(batch_size), correct_label]))
 
     def softmax(self, x):
         # Stabilize the Softmax
-        x -= np.max(x)
+        x -= np.max(x, axis=1, keepdims=True)
 
         # Computes the Softmax function
         exp_score = np.exp(x)
@@ -262,3 +264,7 @@ class NN (object):
         plt.xlabel("Log(N)")
         plt.ylabel("Maximum difference between true and finite gradient")
         plt.show()
+
+    def reset(self):
+        self.params['w'] = []
+        self.params['b'] = []

@@ -27,7 +27,9 @@ def compare_weight_initialization_methods():
     mlp = NN(784, 10, data_path='mnist.pkl.npy', hidden_dims=(600, 600), activation_type='relu')
 
     loss_init.append(mlp.train(10, 'zeros'))
+    mlp.reset()
     loss_init.append(mlp.train(10, 'normal_dist'))
+    mlp.reset()
     loss_init.append(mlp.train(10,'glorot'))
 
     plt.plot(loss_init[0], label='Zeros')
