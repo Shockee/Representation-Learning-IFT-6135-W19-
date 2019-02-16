@@ -1,13 +1,23 @@
 from NN import NN
 import random
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def main():
+    choice = ""
 
-    #compare_weight_initialization_methods()
-    #random_search(10)
-    plot_finite_gradient()
+    while choice != "q":
+        choice = input("Type 1 for weights initialization comparaison, 2 for the parameters search,"
+                       "3 for the finite gradient and q to quit.")
+
+        if choice == str(1):
+            compare_weight_initialization_methods()
+        if choice == str(2):
+            random_search(10)
+        if choice == str(3):
+            plot_finite_gradient()
+
     return None
 
 
@@ -34,6 +44,7 @@ def random_search(num_search):
     activations = ['relu', 'sigmoid', 'tanh']
 
     for i in range(num_search):
+
         # Random initialization of hyper-parameters
         dim_l1 = random.randint(450, 650)
         dim_l2 = random.randint(450, 650)
@@ -52,12 +63,15 @@ def random_search(num_search):
 
         mlp.train(10, 'glorot')
 
+
 def plot_finite_gradient():
 
     mlp = NN(784, 10, data_path='mnist.pkl.npy', hidden_dims=(600, 600), activation_type='relu')
     mlp.train(10, 'glorot')
 
-    mlp.plot_finite_gradient()
+    N = np.array([1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500,
+                 1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000])
+    mlp.plot_finite_gradient(N)
 
 
 if __name__ == '__main__':

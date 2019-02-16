@@ -217,46 +217,46 @@ class NN (object):
         print("Valid results :" + str((results/len(validation_set[0]))*100) + "%")
 
 
-    def plot_finite_gradient(self):
+    def plot_finite_gradient(self, N):
+
+        # Loading the sample to use for evaluation
         sample = np.load(self.data_path)[2]
         x = sample[0][0]
-        x.shape = (1, len(x))
         t = sample[1][0]
+        x.shape = (1, len(x))
 
-        N = np.array([1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500,
-                              1000, 2000, 3000, 4000, 5000, 10000, 20000, 30000, 40000, 50000])
+        # Setup variables for the calculations
         epsilon = 1/N
         last_layer_weights = self.params['w'][2]
         finite_gradient = np.zeros((len(epsilon), self.num_class))
 
-        self.l_vector = []
+        # Calculate true gradient
+        prediction = self.forward(x)
+        true_gradient, _ = self.backward(x, t, prediction, 1)
 
         for i in range(0, 10):
             for j in range(0, len(epsilon)):
 
                 # Calculate L with -epsilon
-                min_loss = copy.deepcopy(last_layer_weights)
-                min_loss[:, i] -= epsilon[j]
-                self.params['w'][2] = min_loss
+                min_loss_weights = copy.deepcopy(last_layer_weights)
+                min_loss_weights[:, i] -= epsilon[j]
+                self.params['w'][2] = min_loss_weights
 
                 prediction = self.forward(x)
-                self.backward(x,t,prediction,1)
+                min_loss = self.loss(prediction, t, 1)
 
                 # Calculate L with +epsilon
-                max_loss = copy.deepcopy(last_layer_weights)
-                max_loss[:, i] += epsilon[j]
-                self.params['w'][2] = max_loss
+                max_loss_weights = copy.deepcopy(last_layer_weights)
+                max_loss_weights[:, i] += epsilon[j]
+                self.params['w'][2] = max_loss_weights
 
                 prediction = self.forward(x)
-                self.backward(x, t, prediction, 1)
+                max_loss = self.loss(prediction, t, 1)
 
-                finite_gradient[j][i] = (self.l_vector[1] - self.l_vector[0])/(2*epsilon[j])
+                # Calculate the finite gradient for the current N and current theta
+                finite_gradient[j][i] = (max_loss - min_loss)/(2*epsilon[j])
 
-                self.l_vector = []
-
-        prediction = self.forward(x)
-        grad, gbias = self.backward(x, t, prediction, 1)
-        max_diff = np.max(np.abs((np.sum(grad[2],axis=0) - finite_gradient)), axis=1)
+        max_diff = np.max(np.abs((np.sum(true_gradient[2], axis=0) - finite_gradient)), axis=1)
 
         plt.plot(np.log(N), max_diff)
         plt.xlabel("Log(N)")
