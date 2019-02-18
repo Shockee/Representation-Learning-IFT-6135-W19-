@@ -30,18 +30,15 @@
     \item
 	The Heaviside function is a piecewise function, with three different value. We therefore need to show that for a particular value of the heaviside function, the derivative of the Relu over    	the same domain is equal to the Heavyside fonction. Two domains are of interest, $x < 0$ and $x > 0$. Since Relu isn't differientiable at X = 0, we don't need to prove the equality at this 		          value.\\
 
-	For $x < 0$\\
-	Relu = 0 (and  $\frac{\partial 0}{\partial x}$ = 0 by definition) \\
-	Heavyside = 0 \\
-	Therefore, Heavyside = $\frac{\partial Relu}{\partial x}$ on $x < 0$\\ \\
-
-	
-	For $x > 0$\\
-	Relu = x, so $\frac{\partial X}{\partial x} = 1$  \\
-	Heavyside = 1 \\
-	Therefore, Heavyside = $\frac{\partial Relu}{\partial x}$ on $x > 0$\\ \\
-
-	 $\blacksquare$
+	$$Case: x < 0$$\\
+	$$Relu = 0 (\frac{\partial 0}{\partial x} = 0)$$ \\
+	$$Heavyside = 0$$ \\
+	$$Heavyside = \frac{\partial Relu}{\partial x}$$\\	
+	$$Case: x > 0$$\\
+	$$Relu = x, \frac{\partial X}{\partial x} = 1 $$ \\
+	$$Heavyside = 1$$ \\
+	$$Heavyside = \frac{\partial Relu}{\partial x}$$\\
+	 $$\blacksquare$$
 
 	\item
 		$ g(x) = \int H(x)$, by definition since we established that $\frac{\partial g(x)}{\partial x} = H(x)$\\
@@ -55,19 +52,19 @@
 		Let N be a large interger.\\
 
 		
-		For $x < 0$\\
-		$e^{-kx} + 1$ = N, since x is negative\\
-		$\frac{1}{e^{-kx} + 1} = \frac{1}{N} \approx 0 = H(x)$\\ \\
+		$$Case:x < 0$$\\
+		$$e^{-kx} + 1 = N$$\\
+		$$\frac{1}{e^{-kx} + 1} = \frac{1}{N} \approx 0 = H(x)$$\\ \\
 
-		For $x = 0$\\
-		$\frac{1}{e^{0} + 1} = \frac{1}{2} = H(x)$ \\ \\
+		$$Case:x = 0$$\\
+		$$\frac{1}{e^{0} + 1} = \frac{1}{2} = H(x)$$ \\ \\
 
-		For $x < 0$\\
-		$- kx= -N$, since x is postive\\
-		$e^{-N}  \approx 0$\\
-		$\frac{1}{e^{-kx} + 1} \approx 1 = H(x)$\\ 
+		$$Case:x > 0$$\\
+		$$- kx= -N$$\\
+		$$e^{-N}  \approx 0$$\\
+		$$\frac{1}{e^{-kx} + 1} \approx 1 = H(x)$$\\ 
 
-	           $\blacksquare$
+	           $$\blacksquare$$
 
 	\item 
 		By the definition that is provided,  $F[\phi] = \int\limits_R F(x)\phi(x)d x$ \\
@@ -84,7 +81,7 @@
 		$$H'(x) = - \int_{0}^\infty\phi'(x)d x = - \Big|_{0}^\infty \phi(x) = - (\phi(\infty) - \phi(0))$$\\
 		By definition $ \phi(\infty) = 0$\\
 		$$H'(x) =  - (0 - \phi(0)) = \phi(0)$$\\
-	           $\blacksquare$		
+	           $$\blacksquare$$		
 
 
 
@@ -105,7 +102,7 @@
 	Since $\frac{\partial exp(x_i)}{\partial x_j}$ is 1 if i = j and else, we can express that derivative as being $\delta_{ij}exp(x_i)$. Simlilarly,  $\frac{\partial }{\partial x_j} (\sum_k exp(x_k)) 		= exp(x_j) $\\
 	Then $$ =\frac{\delta_{ij}exp(x_i)}{\sum_k exp(x_k)} - \frac{exp(x_i)}{\sum_k exp(x_k)} \frac{exp(x_j)}{\sum_k exp(x_k)} $$ $$=  \frac{exp(x_i)}{\sum_k exp(x_k)} (\delta_{ij} - 	        		           \frac{exp(x_j)}{\sum_k exp(x_k)}) $$
 	By definition of the softmax $$ = S(x_i)(\delta_{ij} - S(x_j))$$
-	$\blacksquare$
+	$$\blacksquare$$
 
 \item
 	Knowing $\frac{\partial S(x_i)}{\partial x_j} = S(x_i)(\delta_{ij} - S(x_j))$, distributing we get $$ S(x_i)\delta_{ij} - S(x_i)S(x_j)$$ 
@@ -122,11 +119,26 @@
 \item 
 	We need to show O(n) for the Softmax and the Sigmoid\\
 
-	For the Sigmoid, since $\frac{\partial }{\partial x} \sigma(x)$ is a diagonal matrix, this become a vector multiplication between the diagonal of both matrices, since all other results yields 0.
+	For the Sigmoid, since $\frac{\partial }{\partial x} \sigma(x)$ is a diagonal matrix, this become a vector multiplication between the diagonal of both matrices, since all other results yields 	          0.
 	Knowing that the diagonal of an nxn matrix as n elements, we only need to do n multiplication, therefore the multiplication is O(n)\\ \\
 
-	For the Softmax : TODO\\
+	For the Softmax : We showed previously that we can represent the Jacobian matrix of the softmax as follow : \\
 
+	 $$=\begin{bmatrix}
+    \sigma(1) (\delta_{ij} - \sigma(1))  & \dots  &     \sigma(1) (\delta_{ij} - \sigma(k))  \\
+    \vdots   & \ddots & \vdots \\
+   \sigma(k) (\delta_{ij} - \sigma(1))   & \dots &  \sigma(k) (\delta_{ij} - \sigma(k))  \\
+\end{bmatrix}$$
+
+Which can be simplified as follow, knowning kroenecker delta definition :
+	 $$=\begin{bmatrix}
+     \sigma(1) - \sigma(1) \sigma(1) & \dots  &        - \sigma(1) \sigma(k)  \\
+    \vdots   & \ddots & \vdots \\
+      - \sigma(1) \sigma(k)   & \dots &    \sigma(k) - \sigma(k) \sigma(k)  \\
+\end{bmatrix}$$
+
+We see that the Jacobian of the softmax is a symmetric matrix. We know from linear algebra that a symmetric matrix is always diagonalizable. By preprocessing the jacobian first to get a diagonal matrix, the matrix vector operation becomes a diagonal matrix vector multiplication.
+This operation can be simplified as an element product between the diagonal of the matrix and the vector. This elementwise product is O(n), which makes the multiplication O(n).
 
 
     \vspace{0.5cm}
@@ -139,7 +151,7 @@
 \begin{enumerate}
      \item 
 	$$ S(x+c) = \frac{e^{x+c}}{\sum_k e^{x + c}}$$ $$ = \frac{e^x e^c}{\sum_k e^{x} e^{c}}$$ $$= \frac{e^x e^c}{e^{c}\sum_k e^{x}}$$ $$ =  \frac{e^x}{\sum_k e^{x}}$$
-	$\blacksquare$
+	$$\blacksquare$$
 
     \item 
 	Proof by contradiction, let S(x) be invariant of scalar multiplication. Then S(x) = S(xc) should hold true.$ Let x_1 = 2 , x_2 = 4 and c = 2$. Then 
@@ -158,7 +170,7 @@
 	$$ = 1 - \frac{exp(x_2)}{exp(x_2)(1 + exp(x1)exp(-x_2))}  = 1 - \frac{exp(x_2)}{exp(x_2) + exp(x_1)}$$\\
 	$$ = \frac{exp(x_1) + exp(x_2)}{exp(x_1) + exp(x_2)} - \frac{exp(x_2)}{exp(x_1)exp(x_2)} = \frac{exp(x_1)}{exp(x_1)exp(x_2)}$$\\
 	$$ = S(x_1)$$
-	$\blacksquare$
+	$$\blacksquare$$
 
     \item 
 	Let $y_i = x_i - x_1$ . We then propose a S(x) with K - 1 parameters to be of this form
@@ -175,7 +187,7 @@ We then show that   $f(y2,y3,...,y_k)_i = S(x1,x2, ... , x_k)_i$ for all i\\
 For $ i \neq j$ We have $$ f(y_2,y3_,...,y_k)_i = \frac{exp(x_i - x_1)}{(\sum^k_{j=2} exp(x_j - x_1)) + 1}$$ $$ = \frac{exp(x_i)}{(\sum^k_{j=2} exp(x_j)) + exp(x_1)}$$ $$= S(x_1, ..., x_k)_i$$\\ \\
 
 For $ i = j$ $$ S(x_1, ..., x_k)_i = 1 - \sum^k_{j=2} S(x1, ..., x_k)_j = 1 - \sum^k_{j=2} f(y_2, ..., y_k)_j $$
-	$\blacksquare$
+	$$\blacksquare$$
     \vspace{0.5cm}
 \end{enumerate}
 
@@ -186,7 +198,7 @@ For $ i = j$ $$ S(x_1, ..., x_k)_i = 1 - \sum^k_{j=2} S(x1, ..., x_k)_j = 1 - \s
   \begin{enumerate}
 
   \item 
-	If we show a linear relationship between the simgmoid and tanh, we can transform the sigmoid form into the tanh form, given the correct parameters.
+	If we show a linear relationship between the sigmoid and tanh, we can transform the sigmoid form into the tanh form, given the correct parameters.
 
 	We show the sigmoid/tanh relation to be $tanh(x) = 2\sigma(2x) - 1$ $$ \sigma(x) = \frac{1}{1 + e^{-x}}$$ $$ 2 \sigma(2x) - 1 = \frac{2}{1 + e^{-2x}} -1$$ $$ = \frac{2e^{x}}{e^x + e^{-x}} - \frac{e^x + e^{-x}}{e^x + e^{-x}} = \frac{e^x - e^{-x}}{e^x + e^{-x}}$$ $$ = tanh(x)$$
 
@@ -229,10 +241,24 @@ For $ i = j$ $$ S(x_1, ..., x_k)_i = 1 - \sum^k_{j=2} S(x1, ..., x_k)_j = 1 - \s
 \end{bmatrix}
 \]
 \item
-	TODO
+	Let's re-order the above matrix so that the values on each value of each row are stricly greater than the values of the rows under them. With the new ordering, let's then take
+	$b^{(1)}_{j} > \epsilon > 0$. Since all values above the diagonal are bigger then $b^{(1)}_{j}$, they all get positive. The diagonal is also positive, since $\epsilon > 0$. The values
+	under the diagonal get negative, since $wx + \epsilon <  b^{(1)}_{j} $. Since $\phi$ is Relu, all negative values = 0. So we get an upper triangular matrix, with a diagonal $>$ 0.\\
+
+	Knowing this we can now try to evaluate $N = \infty$. With the triangular matrix, we can now see that the difference between$x^i$ and $x^{i+1}$ is now any definite value. Since $x^i$ 
+	is a sum of linear functions, which can give any value, and the difference between  $x^i$ and $x^{i+1}$ is also linear and any definite value, we can conclude that the resulting function
+	can be any continous function f.
+
+	
+
+	
 
 \item 
-	TODO
+	We order the matrix the same way we did in the previous question. For the upper triangle matrix, we get $wx > b$ and the difference = $+\infty$. For the diagonal the 
+	difference is 0, which $\phi(0)$ is positive. For the lower matrix, we get  $wx < b$ , which $\phi(-\infty) = 0$. We then get an upper triangular matrix, with a positive
+	diagonal. 
+
+	As we concluded previously, this upper triangular matrix can be use to approximate any continous fonction f.
 
 
 \end{enumerate}
